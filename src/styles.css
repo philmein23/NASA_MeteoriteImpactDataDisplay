@@ -1,0 +1,20 @@
+body,
+htm {
+  height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#mapid {
+  height: 500px;
+}
+
+fieldset {
+  border: none;
+}
