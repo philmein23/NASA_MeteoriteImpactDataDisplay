@@ -1,18 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { getImpactData } from "./api/api";
+import Map from "./Map";
 
 import "./styles.css";
 
-let myMap = null;
-let myFGmarker = null;
-
-const TOKEN =
-  "sk.eyJ1IjoicGhpbG1laW4yMyIsImEiOiJjanNjczd4d2cwMDEyNDNzN3lkMnZzYmQxIn0.hYLJk5bWY9Biuhj9ak1ivg";
-
-const LEAFLET_URL = `https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=${TOKEN}`;
-const ATTRIBUTION =
-  'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 function App() {
   let [impactData, addImpactData] = useState([]);
   let [filteredData, applyFilter] = useState([]);
@@ -25,29 +17,12 @@ function App() {
     });
   };
 
-  const addGeocoordinates = dataset => {
-    myFGmarker.clearLayers();
-
-    dataset.forEach(data => {
-      if (data.geolocation) {
-        let coordinates = data.geolocation.coordinates;
-        if (coordinates) {
-          myFGmarker.addLayer(addMarker(coordinates));
-          myFGmarker.addTo(myMap);
-        }
-      }
-    });
-
-    myMap.fitBounds(myFGmarker.getBounds());
-  };
-
   const applyTimeWindowFilter = e => {
     e.preventDefault();
 
     let filteredData = impactData.filter(data => {
       let dataYear = new Date(data.year).getFullYear();
       if (yearStart && yearEnd) {
-        console.log(yearStart, yearEnd);
         return dataYear >= Number(yearStart) && dataYear <= Number(yearEnd);
       }
 
@@ -61,27 +36,6 @@ function App() {
     });
 
     applyFilter(filteredData);
-    addGeocoordinates(filteredData);
-  };
-
-  const initMap = () => {
-    myMap = window.L.map("mapid");
-    myFGmarker = window.L.featureGroup();
-
-    window.L.tileLayer(LEAFLET_URL, {
-      attribution: ATTRIBUTION,
-      noWrap: true
-    }).addTo(myMap);
-  };
-
-  const addMarker = coordinates => {
-    let marker = window.L.marker(coordinates);
-    return marker;
-  };
-
-  const clearMarkers = e => {
-    e.preventDefault();
-    myFGmarker.clearLayers();
   };
 
   const onHandleChange = e => {
@@ -97,18 +51,20 @@ function App() {
   };
 
   useEffect(() => {
-    initMap();
     getImpactData().then(data => {
       let filteredData = applyDefaultFilter(data);
-      addGeocoordinates(filteredData);
       addImpactData(data);
       applyFilter(filteredData);
     });
   }, []);
 
+  const renderMap = () => {
+    return filteredData.length ? <Map filteredData={filteredData} /> : null;
+  };
+
   return (
     <main className="container">
-      <div id="mapid" />
+      {renderMap()}
       <section className="filter-control">
         <form>
           <fieldset>
@@ -135,7 +91,6 @@ function App() {
               </div>
               <div className="button-container">
                 <button onClick={applyTimeWindowFilter}>Apply Filter</button>
-                <button onClick={clearMarkers}>Clear Markers</button>
               </div>
             </div>
           </fieldset>
