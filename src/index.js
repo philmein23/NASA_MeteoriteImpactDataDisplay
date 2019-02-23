@@ -90,15 +90,36 @@ function App() {
                 />
               </div>
               <div className="button-container">
-                <button onClick={applyTimeWindowFilter}>Apply Filter</button>
+                <button className="primary" onClick={applyTimeWindowFilter}>
+                  Apply Filter
+                </button>
               </div>
             </div>
           </fieldset>
         </form>
       </section>
-      <section>
+      <section className="flex-layout">
+        <div className="header-row">
+          <div>Timestamp</div>
+          <div>ID</div>
+          <div>Name</div>
+          <div>Mass</div>
+          <div>RecClass</div>
+          <div>RecLat</div>
+          <div>RecLng</div>
+        </div>
         {filteredData.map(data => {
-          return <div>{data.year}</div>;
+          return (
+            <div className="item-row">
+              <div>{data.year}</div>
+              <div>{data.id}</div>
+              <div>{data.name}</div>
+              <div>{data.mass}</div>
+              <div>{data.recclass}</div>
+              <div>{data.reclat}</div>
+              <div>{data.reclong}</div>
+            </div>
+          );
         })}
       </section>
     </main>
